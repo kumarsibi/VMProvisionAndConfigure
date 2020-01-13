@@ -1,0 +1,43 @@
+---
+- name: VM Provisioning(The VM is currently being provisioned via Terraform as the Ansible does not have access to VMWare API from inside the network)
+  hosts: all
+
+- name: Create User Account
+  hosts: all
+  roles:
+    - name: Create User Account
+      role: useradd
+
+- name: Install Mcafee on  the Provisioned Servers
+  hosts: all
+  roles:
+    - name: Install mcafee
+      role: mcafee
+      mcafee_zip_file: install.sh
+      mcafee_local_src_dir: binaries/Linux
+      mcafee_upload_dir: /tmp
+      rpm_file: unzip-6.1c-7.mga8.x86_64.rpm
+      rpm_upload_dir: /tmp
+      rpm_local_src_dir: packages/rpms
+
+- name: Install Java on the Provisioned Servers
+  hosts: all
+  roles:
+    - name: Install java
+      role: java
+      zabbix_upload_dir: /tmp
+      rpm_file: jre-8u231-linux-x64.rpm
+      rpm_upload_dir: /tmp
+      rpm_local_src_dir: packages/rpms
+
+- name: Install Zabbix on the Provisioned Servers
+  hosts: all
+  roles:
+    - name: Install zabbix
+      role: zabbix
+      zabbix_upload_dir: /tmp
+      rpm_file: zabbix-agent-4.0.0-2.el7.x86_64.rpm
+      rpm_upload_dir: /tmp
+      rpm_local_src_dir: packages/rpms
+
+

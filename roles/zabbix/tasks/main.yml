@@ -1,0 +1,41 @@
+---
+# tasks file for zabbix agent install
+
+- name: Check for RPM File
+  stat:
+    path: "{{ rpm_upload_dir }}/{{ rpm_file }}"
+  register: stat_result
+
+- name: Upload RPM file
+  copy:
+    src: "{{ rpm_local_src_dir }}/{{ rpm_file }}"
+    dest: "{{ rpm_upload_dir }}/{{ rpm_file }}"
+    mode: u+rwx
+  when: not stat_result.stat.exists
+
+- name: Install zabbix-agent
+  yum:
+    name: "{{ rpm_upload_dir }}/{{ rpm_file }}"
+    state: present
+  become: yes
+
+- name: Modify config file
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^SELINUX='
+    regexp: '^Server=127.0.0.1'
+    line: Server=172.27.100.29
+
+- name: Modify config file
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^ServerActive=127.0.0.1'
+    line: ServerActive=172.27.100.29
+
+- name: Restart Zabbix-agent
+  service:
+    name: zabbix-agent
+    state: restarted
+    enabled: yes
+  become: yes
+
